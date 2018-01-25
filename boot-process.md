@@ -30,7 +30,7 @@ Trammell Hudson đã tạo ra [me_cleaner](https://github.com/corna/me_cleaner) 
 
 IME firmware và phần mềm System Management Mode (SMM) theo kèm khởi động dựa trên hệ điều hành Minix và chạy trên bộ xử lý nền tảng riêng biệt Platform Controller Hub chứ không phải là CPU.
 Sau đó SMM khởi chạy Universal Extensible Firmware Interface (UEFI) - được viết và chạy trên CPU.
-Nhóm Coreboot ở Google đã bắt đầu một dự án NERF (Non-Extensible Reduced Firmware) có tham vọng thay thế không chỉ của UEFI mà còn các thành phần người dùng Linux ban đầu như systemd
+Nhóm Coreboot ở Google đã bắt đầu một dự án NERF (Non-Extensible Reduced Firmware) có tham vọng thay thế không chỉ của UEFI mà còn các thành phần người dùng Linux ban đầu như systemd.
 Trong khi chờ đợi kết quả của những nỗ lực mới này, người dùng Linux bây giờ có thể mua máy tính xách tay từ Purism, System76 hoặc Dell với IME bị vô hiệu, ngoài ra chúng ta có thể hy vọng cho máy tính xách tay có bộ vi xử lý ARM 64-bit.
 
 
@@ -98,12 +98,12 @@ BuildID[sha1]=14e8563676febeb06d701dbee35d225c5a8e565a,
 stripped
 ```
 
-Các chương trình ELF có một thông dịch viên, giống như các tập lệnh Bash và Python, nhưng thông dịch viên không cần phải được chỉ định với #! như trong các ngôn ngữ kịch bản, như ELF là định dạng gốc của Linux.
+Các chương trình ELF có một trình thông dịch, giống như các tập lệnh Bash và Python, nhưng trình thông dịch không cần phải được chỉ định với #! như trong các ngôn ngữ kịch bản, ELF là định dạng gốc của Linux.
 Trình thông dịch ELF cung cấp một số nhị phân với các tài nguyên cần thiết bằng cách gọi `_start()`, một chức năng có sẵn từ gói nguồn glibc có thể được kiểm tra qua GDB.
-Kernel rõ ràng là không có thông dịch viên và phải cung cấp chính nó, nhưng làm thế nào?
+Kernel rõ ràng là không có trình thông dịch và phải tự cung cấp cho chính nó, nhưng làm thế nào?
 
-Việc kiểm tra khởi động của hạt nhân với GDB giúp đưa ra câu trả lời. Đầu tiên cài đặt gói gỡ lỗi cho kernel có chứa một phiên bản chưa được vmlinux, ví dụ `apt-get install linux-image-amd64-dbg`, hoặc biên dịch và cài đặt kernel của riêng bạn từ nguồn, ví dụ bằng cách làm theo các hướng dẫn trong [Debian Kernel Handbook](http://kernel-handbook.alioth.debian.org/).
-`gdb vmlinux` theo sau bởi các tệp tin hiển thị phần init.text của ELF. Danh sách bắt đầu thực hiện chương trình trong init.text với l * (địa chỉ)
+Việc kiểm tra khởi động của kernel với GDB giúp đưa ra câu trả lời. Đầu tiên gói gỡ lỗi cho kernel chứa một phiên bản `vmlinux`, ví dụ `apt-get install linux-image-amd64-dbg`, hoặc biên dịch và cài đặt kernel của riêng bạn từ nguồn, ví dụ bằng cách làm theo các hướng dẫn trong [Debian Kernel Handbook](http://kernel-handbook.alioth.debian.org/).
+`gdb vmlinux` theo bởi các tệp tin sẽ hiển thị phần `init.text` của ELF. Danh sách bắt đầu thực hiện chương trình trong `init.text` với l * (địa chỉ)
 GDB sẽ chỉ ra rằng kernel x86_64 khởi động trong tệp tin của kernel `/x86/kernel/head_64.S`
 ARM 32-bit kernel có cấu trúc tương tự `arch/arm/kernel/head.S`
 
@@ -114,13 +114,13 @@ ARM 32-bit kernel có cấu trúc tương tự `arch/arm/kernel/head.S`
 Khi khởi động, kernel cần thông tin về phần cứng ngoại trừ bộ xử lý mà nó đã được biên dịch.
 Các hướng dẫn trong mã được gia tăng bởi dữ liệu cấu hình được lưu trữ riêng.
 Có hai phương pháp chính để lưu trữ dữ liệu này: cây thiết bị và bảng ACPI.
-Hạt nhân học được phần cứng nào nó phải chạy ở mỗi lần khởi động bằng cách đọc các tập tin này.
+Kernel biết được phần cứng phải chạy ở mỗi lần khởi động bằng cách đọc các tập tin này.
 
-Đối với thiết bị nhúng, cây thiết bị là biểu hiện của phần cứng được cài đặt.
+Đối với thiết bị nhúng, cây thiết bị là bản kê khai phần cứng được cài đặt.
 Cây thiết bị chỉ đơn giản là một tập tin được biên dịch cùng lúc với nguồn kernel và thường nằm trong `/boot` cùng với `vmlinux`.
-Để xem những gì trong cây thiết bị nhị phân trên một thiết bị ARM, chỉ cần sử dụng lệnh `strings` từ gói `binutils` trên một tệp có tên tương ứng `/boot/*.dtb`, vì `dtb` đề cập đến một cây nhị phân cây thiết bị.
+Để xem những gì trong cây thiết bị nhị phân trên một thiết bị ARM, chỉ cần sử dụng lệnh `strings` từ gói `binutils` trên một tệp có tên tương ứng `/boot/*.dtb`, vì `dtb` đề cập đến một cây thiết bị nhị phân.
 Rõ ràng cây thiết bị có thể được sửa đổi đơn giản bằng cách chỉnh sửa các tệp JSON giống như tạo tệp và rerunning trình biên dịch dtc đặc biệt được cung cấp cùng với mã nguồn kernel.
-Mặc dù cây thiết bị là một tệp tin tĩnh mà đường dẫn tệp thường được hạt nhân truyền đến bởi trình nạp khởi động trên dòng lệnh, một cơ chế che phủ cây thiết bị đã được thêm vào trong những năm gần đây, nơi kernel có thể tự động nạp các mảnh bổ sung để đáp ứng sự kiện hotplug sau khi khởi động.
+Mặc dù cây thiết bị là một tệp tin tĩnh mà đường dẫn tệp thường được kernel truyền đến bởi trình nạp khởi động trên dòng lệnh, một cơ chế bao phủ cây thiết bị đã được thêm vào trong những năm gần đây, nơi kernel có thể tự động nạp các mảnh bổ sung để đáp ứng sự kiện hotplug sau khi khởi động.
 
 x86-family và nhiều thiết bị ARM64 cấp doanh nghiệp sử dụng Advanced Configuration and Power Interface (ACPI). Trái ngược với cây thiết bị, thông tin ACPI được lưu trữ trong hệ thống tập tin ảo của hệ thống `/sys/firmware/acpi/` được tạo bởi kernel khi khởi động bằng cách truy cập vào ROM trên máy.
 Cách dễ dàng để đọc bảng ACPI là với lệnh `acpidump` từ gói công cụ acpica. Đây là một ví dụ:
@@ -130,17 +130,17 @@ Cách dễ dàng để đọc bảng ACPI là với lệnh `acpidump` từ gói 
 ACPI có cả phương pháp và dữ liệu, không giống như cây thiết bị, vốn là ngôn ngữ mô tả phần cứng.
 Các phương pháp của ACPI tiếp tục hoạt động sau khi khởi động.
 Ví dụ, bắt đầu lệnh `acpi_listen` (từ gói apcid) và mở và đóng nắp máy tính xách tay sẽ cho thấy rằng chức năng ACPI đều chạy.
-Có thể tạm thời và tự động ghi đè lên các bảng ACPI, thay đổi vĩnh viễn chúng liên quan đến tương tác với trình đơn BIOS lúc khởi động hoặc reflashing ROM.
-Nếu bạn đang gặp rắc rối đó, có lẽ bạn nên cài đặt coreboot, phần mềm nguồn mở thay thế.
+Có thể tạm thời và tự động ghi đè lên các bảng ACPI, thay đổi vĩnh viễn chúng liên quan đến tương tác với menu BIOS lúc khởi động hoặc reflashing ROM.
+Nếu bạn đang gặp rắc rối đó, có lẽ bạn nên cài đặt [coreboot](https://www.coreboot.org/Supported_Motherboards), phần mềm nguồn mở thay thế.
 
 ### 3.2 Từ start_kernel() tới userspace
 
 Code `init/main.c` thật đáng kinh ngạc, nó vẫn mang bản quyền gốc của Linus Torvalds từ năm 1991-1992.
 Các dòng tìm thấy trong `dmesg` - đầu vào một hệ thống mới khởi động bắt nguồn chủ yếu từ tập tin nguồn này.
 CPU đầu tiên được đăng ký với hệ thống, các cấu trúc dữ liệu toàn cục được khởi tạo, và trình tự lập trình, bộ xử lý gián đoạn (IRQs), bộ đếm thời gian và giao diện điều khiển được đặt theo thứ tự nghiêm ngặt, trực tuyến.
-Cho đến khi chức năng `timekeeping_init()` chạy, tất cả các dấu thời gian là số không.
+Cho đến khi chức năng `timekeeping_init()` chạy, tất cả các mốc thời gian là số không.
 Phần khởi tạo kernel này là đồng bộ, có nghĩa là sự thực hiện xảy ra trong chính xác một luồng và không có chức năng nào được thực hiện cho đến khi kết thúc và trả về kết quả cuối cùng.
-Kết quả là, đầu ra `dmesg` sẽ được tái tạo hoàn toàn, ngay cả giữa hai hệ thống, miễn là họ có cùng một thiết bị cây hoặc bảng ACPI.
+Kết quả là, đầu ra `dmesg` sẽ được tái tạo hoàn toàn, ngay cả giữa hai hệ thống, miễn là họ có cùng một cây thiết bị hoặc bảng ACPI.
 Linux đang hoạt động giống như một trong những hệ điều hành RTOS (hệ điều hành thời gian thực) chạy trên các MCU, ví dụ như QNX hoặc VxWorks.
 Tình huống vẫn tồn tại trong hàm `rest_init()`, được gọi bởi `start_kernel()` tại thời điểm kết thúc.
 
@@ -150,13 +150,13 @@ Tình huống vẫn tồn tại trong hàm `rest_init()`, được gọi bởi `
 Người dùng có thể theo dõi initcalls bằng cách thêm `initcall_debug` vào dòng lệnh kernel, dẫn đến các mục dmesg mỗi khi một chức năng `initcall` chạy.
 `initcalls` đi qua bảy cấp độ tuần tự: early, core, postcore, arch, subsys, fs, device, và late.
 Phần người dùng có thể dễ thấy nhất là các thiết bị ngoại vi: bus, mạng, lưu trữ, màn hình hiển thị ... cùng với việc tải các mô-đun kernel của chúng.
-`rest_init()` cũng tạo ra một thread thứ hai trên bộ vi xử lý khởi động bắt đầu bằng cách chạy `cpu_idle()` trong khi nó chờ cho `scheduler ` lên lịch cho nó làm việc.
+`rest_init()` cũng tạo ra một thread thứ hai trên bộ vi xử lý khởi động bằng cách chạy `cpu_idle()` trong khi nó chờ cho `scheduler ` lên lịch cho nó làm việc.
 
 `kernel_init()` cũng thiết lập multiprocessing đối xứng (SMP).
-Với các kernel gần đây, tìm thấy trong output `dmesg` bằng cách tìm kiếm "Bringing up secondary CPUs.." SMP tiến hành bằng các "hotplugging" CPU, có nghĩa là nó quản lý vòng đời của chúng bằng một máy trạng thái tương tự như các thiết bị USB cắm nóng.
-Hệ thống quản lý năng lượng của nhân thường lấy các lõi riêng lẻ, sau đó đánh thức chúng khi cần thiết, do đó cùng một mã CPU hotplug được gọi lặp đi lặp lại trên một máy không bận. Quan sát lời gọi hệ thống quản lý nguồn bằng công cụ [BCC](http://www.brendangregg.com/ebpf.html) được gọi là `offcputime.py`.
+Với các kernel gần đây, có thể tìm thấy điều này trong output `dmesg` bằng cách tìm kiếm "Bringing up secondary CPUs.." SMP tiến hành bằng các "hotplugging" CPU, có nghĩa là nó quản lý vòng đời của chúng bằng một máy trạng thái tương tự như các thiết bị USB cắm nóng.
+Hệ thống quản lý nguồn của nhân thường lấy các core riêng lẻ, sau đó đánh thức chúng khi cần thiết, do đó cùng một mã CPU hotplug được gọi lặp đi lặp lại trên một máy không bận. Quan sát lời gọi hệ thống quản lý nguồn bằng công cụ [BCC](http://www.brendangregg.com/ebpf.html) được gọi là `offcputime.py`.
 
-Lưu ý rằng mã trong `init/main.c` gần như đã hoàn thành khi chạy `smp_init()`: Bộ xử lý khởi động đã hoàn thành hầu hết việc khởi tạo một lần mà các lõi khác không cần phải lặp lại. Tuy nhiên, mỗi luồng CPU phải được sinh ra cho mỗi lõi để quản lý các sự cố ngắt (IRQs), workqueues, timer, và power.
+Lưu ý rằng mã trong `init/main.c` gần như đã hoàn thành khi chạy `smp_init()`: Bộ xử lý khởi động đã hoàn thành hầu hết việc khởi tạo một lần mà các lõi khác không cần phải lặp lại. Tuy nhiên, mỗi luồng CPU phải được sinh ra cho mỗi core để quản lý các sự cố ngắt (IRQs), workqueues, timer, và power.
 Ví dụ, xem mỗi luồng CPU phục vụ softirqs và workqueues đang hoạt động thông qua lệnh `ps -o psr`.
 
 ```
