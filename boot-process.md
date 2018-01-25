@@ -42,7 +42,7 @@ Bootloader bật nguồn, quét các bus và các interface để xác định k
 Các Bootloader phổ biến như U-boot, GRUB hỗ trợ các giao diện quen thuộc như USB, PCI, NFS và các thiết bị nhúng đặc biệt như NOR- và NAND-flash.
 Nó cũng tương tác với các thiết bị bảo mật phần cứng như Trusted Platform Modules (TPMs).
 
-![Running the U-boot bootloader in the sandbox on the build host]()
+![Running the U-boot bootloader in the sandbox on the build host](https://github.com/locvx1234/init-system/blob/master/images/linuxboot_1.png)
 
 U-boot được sử dụng rộng rãi trên các hệ thống Raspberry Pi, các thiết bị Nitendo, bảng điều khiển ô tô, Chromebooks.
 Nó không có syslog, khi có sự kiện nào đó, nó cũng không có output console nào.
@@ -125,7 +125,7 @@ Mặc dù cây thiết bị là một tệp tin tĩnh mà đường dẫn tệp 
 x86-family và nhiều thiết bị ARM64 cấp doanh nghiệp sử dụng Advanced Configuration and Power Interface (ACPI). Trái ngược với cây thiết bị, thông tin ACPI được lưu trữ trong hệ thống tập tin ảo của hệ thống `/sys/firmware/acpi/` được tạo bởi kernel khi khởi động bằng cách truy cập vào ROM trên máy.
 Cách dễ dàng để đọc bảng ACPI là với lệnh `acpidump` từ gói công cụ acpica. Đây là một ví dụ:
 
-![ACPI tables on Lenovo laptops are all set for Windows 2001]()
+![ACPI tables on Lenovo laptops are all set for Windows 2001](https://github.com/locvx1234/init-system/blob/master/images/linuxboot_2.png)
 
 ACPI có cả phương pháp và dữ liệu, không giống như cây thiết bị, vốn là ngôn ngữ mô tả phần cứng.
 Các phương pháp của ACPI tiếp tục hoạt động sau khi khởi động.
@@ -144,7 +144,7 @@ Kết quả là, đầu ra `dmesg` sẽ được tái tạo hoàn toàn, ngay c�
 Linux đang hoạt động giống như một trong những hệ điều hành RTOS (hệ điều hành thời gian thực) chạy trên các MCU, ví dụ như QNX hoặc VxWorks.
 Tình huống vẫn tồn tại trong hàm `rest_init()`, được gọi bởi `start_kernel()` tại thời điểm kết thúc.
 
-![Summary of early kernel boot process]()
+![Summary of early kernel boot process](https://github.com/locvx1234/init-system/blob/master/images/linuxboot_3.png)
 
 `rest_init()` tạo ra một thread mới chạy `kernel_init()`, nó sẽ gọi `do_initcalls()`.
 Người dùng có thể theo dõi initcalls bằng cách thêm `initcall_debug` vào dòng lệnh kernel, dẫn đến các mục dmesg mỗi khi một chức năng `initcall` chạy.
@@ -193,7 +193,7 @@ Các driver lưu trữ, mạng và thiết bị đầu vào con người (HID) c
 `Initrd` cũng là nơi người dùng có thể lưu trữ mã bảng ACPI tuỳ chỉnh của riêng họ.
 
 
-![Having some fun with the rescue shell and a custom initrd]()
+![Having some fun with the rescue shell and a custom initrd](https://github.com/locvx1234/init-system/blob/master/images/linuxboot_4.png)
 
 `initrd` cũng tuyệt vời cho việc thử nghiệm các hệ thống tập tin và các thiết bị lưu trữ dữ liệu.
 
